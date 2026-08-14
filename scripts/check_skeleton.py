@@ -116,12 +116,13 @@ def main() -> int:
     prohibited: list[str] = []
     for path in project_files():
         relative = path.relative_to(ROOT)
+        relative_text = relative.as_posix()
         if relative in {ALLOWED_SCRIPT, Path("scripts/README.md")}:
             continue
-        if not args.allow_toolchain and relative in TOOLCHAIN_FILES:
-            prohibited.append(str(relative))
+        if not args.allow_toolchain and relative_text in TOOLCHAIN_FILES:
+            prohibited.append(relative_text)
         if not args.allow_toolchain and path.suffix in SOURCE_SUFFIXES:
-            prohibited.append(str(relative))
+            prohibited.append(relative_text)
     if prohibited:
         fail(errors, "implementation/toolchain files present before PHASE-01: " + ", ".join(sorted(prohibited)))
 

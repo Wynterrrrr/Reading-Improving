@@ -41,6 +41,8 @@
 - 完成 Task：00.1、00.2、00.3、00.4、00.5。
 - 修改：`README.md`（目标、边界、运行时产物）；`AGENTS.md`（低上下文 Agent 协议）；`docs/ARCHITECTURE.md`（分层/数据流/风险）；`docs/contracts/README.md`（Markdown 与定位契约）；`docs/CONSTRUCTION_PLAN.md`（00–11 细化施工任务）；`docs/quality/ACCEPTANCE.md`（验收）；`docs/STATUS.md`（账本）；`src|tests|fixtures|scripts/README.md`（空目录边界）；`scripts/check_skeleton.py`（无依赖结构检查）；`.gitignore`（隐私/运行产物保护）。
 - 自动验证：`python3 scripts/check_skeleton.py` → 退出码 0；报告 11/11 必需文档、12/12 phase/check 配对、24 个唯一稳定锚点、零业务实现/工具链文件、零 `数据摘要.md` 产物。`git diff --check` → 退出码 0。
+- 补充 ad-hoc 验证：使用 `/tmp/hermes-verify-reading-skeleton-*.py` 在隔离副本中验证基线通过，并注入 `package.json` 与实际 `数据摘要.md`；检查器均以退出码 1 拒绝。另断言 `.gitignore` 含构建、Vault、EPUB（含 fixture 例外）和密钥保护规则。临时验证脚本及副本均已清理。
+- 修复：ad-hoc 验证首次发现 `check_skeleton.py` 将 `Path` 与字符串集合比较，未能拒绝提前存在的 `package.json`；已改为 `relative.as_posix()` 比较后重新验证通过。
 - 手工验证：不需要。
 - 偏离：无。为避免检查器把“明确不创建数据摘要”的文档表述误判为产物，检查器按文件名是否实际存在来验证，而不是禁止文档文字出现该名称。
 - 风险与未决项：本地仓库尚未提交/推送；未获得执行 PHASE-01 的授权。
