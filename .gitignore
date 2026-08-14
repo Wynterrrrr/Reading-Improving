@@ -1,0 +1,30 @@
+# Reading Improving / LReading
+#
+# 此仓库只存插件源码与合成测试材料；不要把真实书籍、Vault 运行数据或密钥提交到 Git。
+
+node_modules/
+main.js
+main.js.map
+*.map
+coverage/
+.vitest/
+dist/
+build/
+
+# 本地/临时 Vault 与导入产物（仅用于开发或手工验收）
+.vault/
+tmp-vault/
+test-vault/
+LReading/
+
+# EPUB 真实输入与本地实验文件（fixtures/ 内的合成测试资料除外）
+*.epub
+!fixtures/**/*.epub
+
+# 日志、环境与编辑器临时文件
+.env
+.env.*
+*.log
+.DS_Store
+.idea/
+.vscode/
