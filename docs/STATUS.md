@@ -7,11 +7,11 @@
 ## 当前结论
 
 - 最后更新：2026-08-17
-- 项目状态：**LR-PHASE-03 已完成；安全 EPUB 解析与规范化中间模型已通过自动验收。**
-- 已完成：`LR-PHASE-00`、`LR-PHASE-01`、`LR-PHASE-02`、`LR-PHASE-03`。
-- 当前阶段：`LR-PHASE-03` 已完成；下一阶段为 `LR-PHASE-04`（Markdown 渲染、资源与稳定定位）。
-- 解析依赖：`fflate@0.8.3`（MIT）、`fast-xml-parser@5.11.0`（MIT）、`linkedom@0.18.13`（ISC）；仅在内存中处理合成 EPUB，无真实书籍输入。
-- 自动验收：9 个测试文件、52/52 测试通过；`npm run lint`、`npm run typecheck`、`npm run build`、`git diff --check` 均通过。
+- 项目状态：**LR-PHASE-04 已完成；Markdown、资源计划与稳定定位已通过自动验收。**
+- 已完成：`LR-PHASE-00` 至 `LR-PHASE-04`。
+- 当前阶段：`LR-PHASE-04` 已完成；下一阶段为 `LR-PHASE-05`（导入命令与受控 Vault 写入）。
+- 自动验收：13 个测试文件、60/60 测试通过；`npm run lint`、`npm run typecheck`、`npm run build`、`git diff --check` 均通过。
+- 本阶段未写真实 Vault；输出计划不含脚本、远程资源或 `数据摘要.md`。
 - 工具链：Node `v22.23.2`、npm `10.9.8`、TypeScript `6.0.3`、esbuild `0.28.2`、Vitest `4.1.10`、ESLint `10.8.1`、Obsidian types `1.13.1`；仅项目本地 npm 依赖，无全局安装。
 - 自动验收：`npm run lint`、`npm run typecheck`、`npm test`（4/4）、`npm run build`、`python3 scripts/check_skeleton.py --allow-toolchain`、`git diff --check` 均已真实通过。
 - M-01：已部署至 `ObsdianDrive-main/.obsidian/plugins/lreading/`，三份产物与源码构建结果匹配；插件 `lreading` 已启用、重载成功，命令 `lreading:lreading-open-library` 已注册和执行；调试捕获下无运行时/控制台错误。
@@ -29,7 +29,7 @@
 | LR-PHASE-01 | 工具链与最小插件壳 | done | 00 | `LR-CHECK-01` 通过 | M-01：已通过 |
 | LR-PHASE-02 | 核心领域模型与 Vault 安全边界 | done | 01 | `LR-CHECK-02` 通过 | 不需要 |
 | LR-PHASE-03 | EPUB 解析与规范化中间模型 | done | 02 | `LR-CHECK-03` 通过 | 不需要 |
-| LR-PHASE-04 | Markdown 渲染、资源与稳定定位 | blocked | 03 | `LR-CHECK-04` | 章节阅读与回链 |
+| LR-PHASE-04 | Markdown 渲染、资源与稳定定位 | done | 03 | `LR-CHECK-04` 通过 | 章节阅读与回链 |
 | LR-PHASE-05 | 导入命令与受控写入流程 | blocked | 04 | `LR-CHECK-05` | 真实样书导入 |
 | LR-PHASE-06 | 选区阅读记录：摘录/笔记/摘要/问题 | blocked | 05 | `LR-CHECK-06` | 选区到笔记回链 |
 | LR-PHASE-07 | 书架、目录与资料目录功能区 | blocked | 06 | `LR-CHECK-07` | 多书浏览 |
@@ -112,6 +112,18 @@
 - 偏离：外部参考示例为 jszip/@xmldom，但实现使用已审查的 fflate/fast-xml-parser/linkedom，分别提供内存 ZIP、严格 XML 校验和安全 XHTML DOM 清理；在 STATUS 已记录理由与许可。
 - 风险与未决项：复杂表格、MathML、SVG 尚未渲染（PHASE-04 的保守降级职责）；没有真实样书验收，按隐私规则延后至 PHASE-05 M-02。
 - 下一建议：继续 `LR-PHASE-04`，将 NormalizedBook 确定性转成 Markdown/资源写入计划/稳定 block ID，仍不写 Vault。
+
+### 2026-08-17 — LR-PHASE-04 交接
+
+- 状态：`done`
+- 完成 Task：04.1、04.2、04.3、04.4、04.5。
+- 修改：`src/domain/block-id.ts`（确定性 ID/内容哈希）；`markdown-render.ts`（清理 XHTML → Markdown、段落 SourceRef、warning）；`asset-plan.ts`（内容哈希资源计划与去重）；`book-layout.ts`（书籍/目录/阅读笔记/书架计划）；`tests/unit/domain/block-id.test.ts`、`tests/unit/markdown/**`；`docs/STATUS.md`。
+- TDD 证据：四组 renderer/ID/资源/layout 测试先因模块缺失 RED；实现后通过 8/8。期间修正了测试对带序号 paragraph ID 的正则、Wikilink alias 断言，以及独立图片块漏渲染的真实边界。
+- 自动验证：`npm run lint` → 0；`npm run typecheck` → 0；`npm test` → 13 文件、60/60 通过；`npm run build` → 0；`git diff --check` → 0。额外检查确认 domain renderer 无随机/时间 API、无 Vault/Obsidian 写入、无脚本/远程输出/数据摘要产物。
+- 手工验证：不需要；本阶段只生成内存计划，未写真实 Vault。
+- 偏离：无重大偏离；`paragraphId` 使用 `p_<序号>_<哈希>`，既保留人类可读顺序也满足内容稳定性；复杂 table/MathML/SVG 只生成 warning，按计划延后。
+- 风险与未决项：当前图片 Markdown 仍是相对引用，PHASE-05 需在写入计划中改写为 Vault assets 路径；书籍 frontmatter 的创建/更新时间留空，交给实际导入用例注入；未接入 Obsidian UI。
+- 下一建议：继续 `LR-PHASE-05`，先做写入计划验证和原子导入，再接真实 Obsidian 文件选择/预览确认；真实 EPUB 仅在本地手工验收使用。
 
 ## 环境与遗留
 
