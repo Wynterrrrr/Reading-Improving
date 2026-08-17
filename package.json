@@ -20,5 +20,10 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.67.0",
     "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.11.0",
+    "fflate": "^0.8.3",
+    "linkedom": "^0.18.13"
   }
 }

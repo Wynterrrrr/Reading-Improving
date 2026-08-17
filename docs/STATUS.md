@@ -7,11 +7,11 @@
 ## 当前结论
 
 - 最后更新：2026-08-17
-- 项目状态：**LR-PHASE-02 已完成；纯领域模型与 Vault 安全边界已通过自动验收。**
-- 已完成：`LR-PHASE-00`、`LR-PHASE-01`、`LR-PHASE-02`。
-- 当前阶段：`LR-PHASE-02` 已完成；下一阶段为 `LR-PHASE-03`（EPUB 解析与规范化中间模型）。
-- 自动验收：7 个测试文件、34/34 测试通过；`npm run lint`、`npm run typecheck`、`npm run build`、`git diff --check` 均通过。
-- 本阶段未触碰真实 Vault、未解析 EPUB、未新增 Obsidian UI。
+- 项目状态：**LR-PHASE-03 已完成；安全 EPUB 解析与规范化中间模型已通过自动验收。**
+- 已完成：`LR-PHASE-00`、`LR-PHASE-01`、`LR-PHASE-02`、`LR-PHASE-03`。
+- 当前阶段：`LR-PHASE-03` 已完成；下一阶段为 `LR-PHASE-04`（Markdown 渲染、资源与稳定定位）。
+- 解析依赖：`fflate@0.8.3`（MIT）、`fast-xml-parser@5.11.0`（MIT）、`linkedom@0.18.13`（ISC）；仅在内存中处理合成 EPUB，无真实书籍输入。
+- 自动验收：9 个测试文件、52/52 测试通过；`npm run lint`、`npm run typecheck`、`npm run build`、`git diff --check` 均通过。
 - 工具链：Node `v22.23.2`、npm `10.9.8`、TypeScript `6.0.3`、esbuild `0.28.2`、Vitest `4.1.10`、ESLint `10.8.1`、Obsidian types `1.13.1`；仅项目本地 npm 依赖，无全局安装。
 - 自动验收：`npm run lint`、`npm run typecheck`、`npm test`（4/4）、`npm run build`、`python3 scripts/check_skeleton.py --allow-toolchain`、`git diff --check` 均已真实通过。
 - M-01：已部署至 `ObsdianDrive-main/.obsidian/plugins/lreading/`，三份产物与源码构建结果匹配；插件 `lreading` 已启用、重载成功，命令 `lreading:lreading-open-library` 已注册和执行；调试捕获下无运行时/控制台错误。
@@ -28,7 +28,7 @@
 | LR-PHASE-00 | 文档骨架与契约冻结 | done | — | `LR-CHECK-00` 通过 | 不需要 |
 | LR-PHASE-01 | 工具链与最小插件壳 | done | 00 | `LR-CHECK-01` 通过 | M-01：已通过 |
 | LR-PHASE-02 | 核心领域模型与 Vault 安全边界 | done | 01 | `LR-CHECK-02` 通过 | 不需要 |
-| LR-PHASE-03 | EPUB 解析与规范化中间模型 | blocked | 02 | `LR-CHECK-03` | 不需要 |
+| LR-PHASE-03 | EPUB 解析与规范化中间模型 | done | 02 | `LR-CHECK-03` 通过 | 不需要 |
 | LR-PHASE-04 | Markdown 渲染、资源与稳定定位 | blocked | 03 | `LR-CHECK-04` | 章节阅读与回链 |
 | LR-PHASE-05 | 导入命令与受控写入流程 | blocked | 04 | `LR-CHECK-05` | 真实样书导入 |
 | LR-PHASE-06 | 选区阅读记录：摘录/笔记/摘要/问题 | blocked | 05 | `LR-CHECK-06` | 选区到笔记回链 |
@@ -93,6 +93,25 @@
 - 偏离：为支持 Node 临时 adapter，实际将 TS target/lib 从 ES2018 提升到 ES2019，并启用 `types: ["node"]`；这是配置兼容修复，不改变插件目标运行时。没有引入 Zod，按计划保留原生 TypeScript 验证，减少阶段依赖。
 - 风险与未决项：Node adapter 的真实 Obsidian adapter 尚未实现；EPUB 解析尚未开始。
 - 下一建议：继续 `LR-PHASE-03`，只实现合成 EPUB fixture、安全 ZIP、container/OPF、spine、XHTML 清理与 TOC 规范化，不写 Vault/Markdown。
+
+### 2026-08-17 — LR-PHASE-03 开始记录
+
+- 状态：`in_progress`
+- 范围：合成 EPUB fixture、ZIP 安全检查、container/OPF、spine、XHTML 安全清理、TOC 与 NormalizedBook；全部在内存中完成，不写 Markdown/Vault。
+- 依赖决定：`fflate@0.8.3`（内存 ZIP 编解码，MIT）；`fast-xml-parser@5.11.0`（XML 解析，MIT）；`linkedom@0.18.13`（XHTML DOM 清理，ISC）。替代方案为手写/Node 解压与 XML 解析，安全性/维护成本较差；不使用网络或模型。
+- 下一步：Task 03.1，自写最小 fixture 规范和生成器；不提交真实书内容。
+
+### 2026-08-17 — LR-PHASE-03 交接
+
+- 状态：`done`
+- 完成 Task：03.1、03.2、03.3、03.4、03.5、03.6。
+- 修改：`fixtures/epub/README.md`（合成 fixture 规则）；`tests/unit/epub/zip-safety.test.ts`、`tests/integration/epub/epub-fixtures.ts`、`parse-epub.test.ts`（内存 ZIP/EPUB 测试）；`src/infrastructure/epub/zip-safety.ts`、`parse-epub.ts`、`src/domain/epub-normalize.ts`（安全 ZIP/OPF/spine/XHTML/nav/NCX 解析）；`package*.json`、`esbuild.config.mjs`（解析依赖与 external 配置）；`docs/STATUS.md`。
+- TDD 证据：ZIP safety、parseEpub、NCX fallback、目录 entry 和带 OPF 前缀的 TOC href 均先以失败测试暴露，后以最小实现转绿。解析测试还发现 XML 单值 creator 的命名空间/类型归一化问题，已修正为 `asValueArray`；缺失 spine manifest 项与计划对齐，改为 warning 而非中止有效章节。
+- 自动验证：`npm run lint` → 0；`npm run typecheck` → 0；`npm test` → 9 文件、52/52 通过；`npm run build` → 0；`git diff --check` → 0。解析层无 Vault API；fixtures 无真实书名、正文或下载来源。许可实测：fflate MIT、fast-xml-parser MIT、linkedom ISC。
+- 手工验证：不需要；无真实 EPUB/Vault 写入。
+- 偏离：外部参考示例为 jszip/@xmldom，但实现使用已审查的 fflate/fast-xml-parser/linkedom，分别提供内存 ZIP、严格 XML 校验和安全 XHTML DOM 清理；在 STATUS 已记录理由与许可。
+- 风险与未决项：复杂表格、MathML、SVG 尚未渲染（PHASE-04 的保守降级职责）；没有真实样书验收，按隐私规则延后至 PHASE-05 M-02。
+- 下一建议：继续 `LR-PHASE-04`，将 NormalizedBook 确定性转成 Markdown/资源写入计划/稳定 block ID，仍不写 Vault。
 
 ## 环境与遗留
 
