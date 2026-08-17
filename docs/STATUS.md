@@ -7,9 +7,11 @@
 ## 当前结论
 
 - 最后更新：2026-08-17
-- 项目状态：**LR-PHASE-01 已完成；最小插件壳已部署并通过 Obsidian 运行时验收。**
-- 已完成：`LR-PHASE-00`（文档骨架）与 `LR-PHASE-01`（工具链、最小插件壳、自动化与 M-01）。
-- 下一个阶段：`LR-PHASE-02`（核心领域模型与 Vault 安全边界）；用户已授权连续完成核心 MVP 的 PHASE-01 至 PHASE-10，每阶段仍须完整验证、部署与提交后才可推进。
+- 项目状态：**LR-PHASE-02 已完成；纯领域模型与 Vault 安全边界已通过自动验收。**
+- 已完成：`LR-PHASE-00`、`LR-PHASE-01`、`LR-PHASE-02`。
+- 当前阶段：`LR-PHASE-02` 已完成；下一阶段为 `LR-PHASE-03`（EPUB 解析与规范化中间模型）。
+- 自动验收：7 个测试文件、34/34 测试通过；`npm run lint`、`npm run typecheck`、`npm run build`、`git diff --check` 均通过。
+- 本阶段未触碰真实 Vault、未解析 EPUB、未新增 Obsidian UI。
 - 工具链：Node `v22.23.2`、npm `10.9.8`、TypeScript `6.0.3`、esbuild `0.28.2`、Vitest `4.1.10`、ESLint `10.8.1`、Obsidian types `1.13.1`；仅项目本地 npm 依赖，无全局安装。
 - 自动验收：`npm run lint`、`npm run typecheck`、`npm test`（4/4）、`npm run build`、`python3 scripts/check_skeleton.py --allow-toolchain`、`git diff --check` 均已真实通过。
 - M-01：已部署至 `ObsdianDrive-main/.obsidian/plugins/lreading/`，三份产物与源码构建结果匹配；插件 `lreading` 已启用、重载成功，命令 `lreading:lreading-open-library` 已注册和执行；调试捕获下无运行时/控制台错误。
@@ -25,7 +27,7 @@
 |---|---|---:|---|---|---|
 | LR-PHASE-00 | 文档骨架与契约冻结 | done | — | `LR-CHECK-00` 通过 | 不需要 |
 | LR-PHASE-01 | 工具链与最小插件壳 | done | 00 | `LR-CHECK-01` 通过 | M-01：已通过 |
-| LR-PHASE-02 | 核心领域模型与 Vault 安全边界 | blocked | 01 | `LR-CHECK-02` | 不需要 |
+| LR-PHASE-02 | 核心领域模型与 Vault 安全边界 | done | 01 | `LR-CHECK-02` 通过 | 不需要 |
 | LR-PHASE-03 | EPUB 解析与规范化中间模型 | blocked | 02 | `LR-CHECK-03` | 不需要 |
 | LR-PHASE-04 | Markdown 渲染、资源与稳定定位 | blocked | 03 | `LR-CHECK-04` | 章节阅读与回链 |
 | LR-PHASE-05 | 导入命令与受控写入流程 | blocked | 04 | `LR-CHECK-05` | 真实样书导入 |
@@ -71,6 +73,26 @@
 - 偏离：M-01 原计划标为“待用户确认”，但用户要求默认执行所有步骤再统一复核，因此已使用 Obsidian CLI 完成可验证运行时验收。首次 `plugin:reload` 在 Vault 尚未重扫描时报告“not found”，随后执行 Vault `reload` 后成功；这证明的是扫描时序，不是插件错误。
 - 风险与未决项：最小壳只验证插件加载与占位命令；不包含 EPUB、Vault 数据写入或阅读记录行为。部署目录位于用户的 Vault，同步策略由 Vault 的 obsidian-git 管理；本插件源码仓库不追踪这些部署产物。
 - 下一建议：用户已授权连续施工核心 MVP，PHASE-01 提交后自动开始 `LR-PHASE-02`；`LR-PHASE-11` 仍需单独的模型/隐私/费用决策。
+
+### 2026-08-17 — LR-PHASE-02 开始记录
+
+- 状态：`in_progress`
+- 授权：用户明确授权连续完成核心 MVP 阶段并最终统一复核。
+- 已读：`LR-DECISION-01/03/04/06`、`LR-CONTRACT:SOURCE-LOCATION`、`LR-CONTRACT:READING-NOTES`、PHASE-02 施工任务以及 Vault 虚拟路径存储模式。
+- 范围：纯 TypeScript 领域模型、测试 port、临时目录 Node adapter；绝不连接 Obsidian Vault API 或用户真实 Vault。
+- 下一步：Task 02.1，安全 Vault 相对路径的失败测试。
+
+### 2026-08-17 — LR-PHASE-02 交接
+
+- 状态：`done`
+- 完成 Task：02.1、02.2、02.3、02.4、02.5、02.6。
+- 修改：`src/domain/vault-path.ts`、`system-block.ts`、`book.ts`、`source-ref.ts`、`reading-record.ts`（纯领域规则）；`src/application/ports/vault.ts`（Vault port）；`src/infrastructure/vault/node-vault-adapter.ts`（临时目录 adapter）；`tests/unit/domain/**`、`tests/integration/vault/**`（路径、区块、SourceRef、记录、原子存储测试）；`tsconfig.json`（ES2019/Node 类型以支持 Node adapter 测试）；`docs/CONSTRUCTION_PLAN.md`（补充本阶段允许的 tsconfig 工具链修复）；`docs/STATUS.md`。
+- TDD 证据：02.1、02.3、02.5、02.6 均先运行测试并因目标模块不存在而 RED，再实现最小行为并转 GREEN。额外发现并修正 SourceRef 语义：`needs-review` 是合法的历史回链状态，只有 `source-backed` 阅读记录才要求 `verified`。
+- 自动验证：`npm run lint` → 0；`npm run typecheck` → 0；`npm test` → 7 个测试文件、34/34 通过；`npm run build` → 0；`git diff --check` → 0。纯领域模块无 Obsidian/Node 运行时 import；无真实 Vault 路径泄漏；无 EPUB/UI 模块。
+- 手工验证：不需要；本阶段所有写入均在 Vitest 临时目录，真实 Vault 未触碰。
+- 偏离：为支持 Node 临时 adapter，实际将 TS target/lib 从 ES2018 提升到 ES2019，并启用 `types: ["node"]`；这是配置兼容修复，不改变插件目标运行时。没有引入 Zod，按计划保留原生 TypeScript 验证，减少阶段依赖。
+- 风险与未决项：Node adapter 的真实 Obsidian adapter 尚未实现；EPUB 解析尚未开始。
+- 下一建议：继续 `LR-PHASE-03`，只实现合成 EPUB fixture、安全 ZIP、container/OPF、spine、XHTML 清理与 TOC 规范化，不写 Vault/Markdown。
 
 ## 环境与遗留
 

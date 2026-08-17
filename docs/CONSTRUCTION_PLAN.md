@@ -239,6 +239,7 @@ src/infrastructure/vault/**
 tests/unit/domain/**
 tests/integration/vault/**
 tests/helpers/**
+tsconfig.json  # 仅允许为本阶段 Node 测试 adapter 增加必要的 lib/types 编译配置
 docs/contracts/README.md
 docs/STATUS.md
 ```
