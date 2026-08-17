@@ -1,0 +1,10 @@
+{
+  "id": "lreading",
+  "name": "Reading Improving",
+  "version": "0.0.1",
+  "minAppVersion": "1.5.0",
+  "description": "将无 DRM EPUB 转为可回链 Markdown，并支持 Obsidian 阅读记录。",
+  "author": "Wynterrrrr",
+  "authorUrl": "https://github.com/Wynterrrrr",
+  "isDesktopOnly": true
+}

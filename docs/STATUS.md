@@ -6,12 +6,15 @@
 
 ## 当前结论
 
-- 最后更新：2026-08-14
-- 项目状态：**文档骨架已完成且已通过结构自检；业务实现尚未开始。**
-- 已完成：`LR-PHASE-00`（仅项目骨架、架构、契约与施工计划）。
-- 下一个可执行阶段：`LR-PHASE-01`（工具链与最小插件壳）。
-- 尚未进行：依赖安装、TypeScript 实现、测试运行（除结构自检）、Vault 部署、真实 EPUB 导入。
-- 仓库动作：已克隆 GitHub 仓库 `Wynterrrrr/Reading-Improving`；本次文档提交尚待创建并推送至 `main`。
+- 最后更新：2026-08-17
+- 项目状态：**LR-PHASE-01 已完成；最小插件壳已部署并通过 Obsidian 运行时验收。**
+- 已完成：`LR-PHASE-00`（文档骨架）与 `LR-PHASE-01`（工具链、最小插件壳、自动化与 M-01）。
+- 下一个阶段：`LR-PHASE-02`（核心领域模型与 Vault 安全边界）；用户已授权连续完成核心 MVP 的 PHASE-01 至 PHASE-10，每阶段仍须完整验证、部署与提交后才可推进。
+- 工具链：Node `v22.23.2`、npm `10.9.8`、TypeScript `6.0.3`、esbuild `0.28.2`、Vitest `4.1.10`、ESLint `10.8.1`、Obsidian types `1.13.1`；仅项目本地 npm 依赖，无全局安装。
+- 自动验收：`npm run lint`、`npm run typecheck`、`npm test`（4/4）、`npm run build`、`python3 scripts/check_skeleton.py --allow-toolchain`、`git diff --check` 均已真实通过。
+- M-01：已部署至 `ObsdianDrive-main/.obsidian/plugins/lreading/`，三份产物与源码构建结果匹配；插件 `lreading` 已启用、重载成功，命令 `lreading:lreading-open-library` 已注册和执行；调试捕获下无运行时/控制台错误。
+- 尚未进行：真实 EPUB 导入、Markdown 转换、阅读笔记 UI、Vault 书籍数据写入、模型 API 调用。
+- 仓库动作：GitHub `Wynterrrrr/Reading-Improving`，当前分支 `main`；本阶段改动尚待按阶段提交。
 - 关键设计确认：无 `数据摘要.md`；统计仅为后续可重建的 UI/索引信息，不产生第二份 Markdown 数据源。
 
 ## 阶段账本
@@ -21,7 +24,7 @@
 | 阶段 | 名称 | 状态 | 前置 | 自动验收 | 用户手工验收 |
 |---|---|---:|---|---|---|
 | LR-PHASE-00 | 文档骨架与契约冻结 | done | — | `LR-CHECK-00` 通过 | 不需要 |
-| LR-PHASE-01 | 工具链与最小插件壳 | ready | 00 | `LR-CHECK-01` | 插件可加载 |
+| LR-PHASE-01 | 工具链与最小插件壳 | done | 00 | `LR-CHECK-01` 通过 | M-01：已通过 |
 | LR-PHASE-02 | 核心领域模型与 Vault 安全边界 | blocked | 01 | `LR-CHECK-02` | 不需要 |
 | LR-PHASE-03 | EPUB 解析与规范化中间模型 | blocked | 02 | `LR-CHECK-03` | 不需要 |
 | LR-PHASE-04 | Markdown 渲染、资源与稳定定位 | blocked | 03 | `LR-CHECK-04` | 章节阅读与回链 |
@@ -48,6 +51,27 @@
 - 风险与未决项：本地仓库尚未提交/推送；未获得执行 PHASE-01 的授权。
 - 下一建议：提交并推送本次文档骨架；之后等待用户审核或明确授权 `LR-PHASE-01`。
 
+### 2026-08-17 — LR-PHASE-01 开始记录
+
+- 状态：`in_progress`
+- 用户授权：基于项目说明开始施工；本轮仅执行 LR-PHASE-01。
+- 完成 Task：起点核验（对应 Task 01.1 的环境读取部分）。
+- 真实起点：Node `v22.23.2`；npm `10.9.8`；git `2.43.0`；`main` 分支与 `origin/main` 一致；`python3 scripts/check_skeleton.py` 和 `git diff --check` 均退出码 0。
+- 下一步：Task 01.2，创建 package scripts/config 并安装项目本地开发依赖。
+- 停止范围：不导入 EPUB、不创建阅读笔记 UI、不连接 Vault、不调用大模型、不部署插件。
+
+### 2026-08-17 — LR-PHASE-01 交接
+
+- 状态：`review`
+- 完成 Task：01.1、01.2、01.3、01.4、01.5、01.6、01.7。
+- 修改：`package.json` / `package-lock.json`（本地 npm 工具链）；`tsconfig.json`、`esbuild.config.mjs`、`vitest.config.mjs`、`eslint.config.mjs`、`styles.css`（构建/测试/样式壳）；`manifest.json`、`versions.json`（Obsidian 元数据）；`src/main.ts`（仅 `lreading-open-library` 占位命令）；`tests/smoke/manifest.test.ts`、`tests/smoke/main.test.ts`、`tests/helpers/obsidian.ts`（manifest 与生命周期 smoke）；`docs/STATUS.md`（账本）。
+- TDD 证据：Task 01.3 先运行 manifest test，因缺少 `manifest.json` 失败；创建 manifest/versions 后通过 2/2。Task 01.5 先运行 lifecycle test，最终只因缺少 `src/main.ts` 失败；创建最小入口后通过 2/2。期间测试自身的同步 `await` 语法错误与 mock hoist 警告均在进入实现前修正，不计作有效 RED。
+- 自动验证：`npm run lint` → 0；`npm run typecheck` → 0；`npm test` → 2 文件、4/4 通过；`npm run build` → 0，生成 `main.js`（约 1.4 KB）；bundle 断言 `require("obsidian")` 与 `Reading Improving` 均存在；`python3 scripts/check_skeleton.py --allow-toolchain` → 0；`git diff --check` → 0。
+- 手工验证：M-01 已通过。目标 Vault 为 `C:\Users\Wynter\Documents\GitHub\ObsdianDrive-main`；已原子部署 `main.js`（1399 B）、`manifest.json`（301 B）、`styles.css`（55 B）到 `.obsidian/plugins/lreading/`，逐字节与本地构建产物一致；启用列表含 `lreading`。CLI `reload` 后 `plugin:reload id=lreading` 成功，`plugins:enabled` 显示 lreading，命令 `lreading:lreading-open-library` 已注册且执行成功；开启 `dev:debug` 后二次执行，无 runtime errors / console errors。
+- 偏离：M-01 原计划标为“待用户确认”，但用户要求默认执行所有步骤再统一复核，因此已使用 Obsidian CLI 完成可验证运行时验收。首次 `plugin:reload` 在 Vault 尚未重扫描时报告“not found”，随后执行 Vault `reload` 后成功；这证明的是扫描时序，不是插件错误。
+- 风险与未决项：最小壳只验证插件加载与占位命令；不包含 EPUB、Vault 数据写入或阅读记录行为。部署目录位于用户的 Vault，同步策略由 Vault 的 obsidian-git 管理；本插件源码仓库不追踪这些部署产物。
+- 下一建议：用户已授权连续施工核心 MVP，PHASE-01 提交后自动开始 `LR-PHASE-02`；`LR-PHASE-11` 仍需单独的模型/隐私/费用决策。
+
 ## 环境与遗留
 
 | 项目 | 事实 | 处理规则 |
@@ -59,10 +83,9 @@
 
 ## 下一建议
 
-先完成 `LR-CHECK-00`，提交并推送文档骨架。之后等待用户审核；若认可，用户应明确说：
+等待用户选择：
 
-```text
-执行 LR-PHASE-01
-```
+1. 授权将最小插件壳复制到目标 Vault 并执行 M-01 手工验收；或
+2. 明确接受 M-01 暂待确认，并授权 `LR-PHASE-02`。
 
-届时只执行工具链与最小插件壳，不导入 EPUB，不创建阅读笔记 UI，不部署到 Vault。
+在用户选择前，不进入后续阶段。
